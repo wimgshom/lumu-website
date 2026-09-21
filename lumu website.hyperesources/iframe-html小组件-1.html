@@ -2,107 +2,117 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+  }
   html, body {
     width: 100vw;
     height: 100vh;
     background: transparent;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     user-select: none;
     -webkit-user-select: none;
+    position: relative;
   }
 
-  /* 舞台容器：移动端动态自适应 padding */
+  /* 舞台区域：预留底部 56px 给按钮，防止书本与按钮重叠 */
   .stage {
     position: relative;
     width: 100%;
-    flex: 1;
+    height: calc(100vh - 56px);
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px;
+    padding: 4px 6px;
+    overflow: hidden;
   }
 
-  @media (max-width: 600px) {
-    .stage {
-      padding: 4px 6px; /* 手机端预留更精简的间距，留足翻书空间 */
-    }
-  }
-
-  /* 翻书渲染容器 */
   #book-container {
     box-shadow: 
-      0 8px 24px -3px rgba(0, 0, 0, 0.08), 
-      0 3px 8px -2px rgba(0, 0, 0, 0.04);
+      0 12px 32px -4px rgba(0, 0, 0, 0.12), 
+      0 4px 12px -2px rgba(0, 0, 0, 0.06);
     background: transparent;
     border-radius: 2px;
   }
 
+  /* 彻底消除白边：暗调底色融合 + 严格裁切 */
   .page {
-    background-color: #fff;
+    background-color: #211c19;
     overflow: hidden;
   }
 
+  /* 铺满整个切片，杜绝上下左右露白 */
   .page img {
     width: 100%;
     height: 100%;
-    object-fit: fill;
+    object-fit: cover;
     display: block;
     pointer-events: none;
   }
 
-  /* 底部 Prev / Next 控制按钮 */
+  /* 控制栏：贴底居中展示，层级置顶 */
   .controls {
-    height: 44px;
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    height: 46px;
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 20px;
-    z-index: 1000;
+    gap: 24px;
+    z-index: 9999;
   }
 
+  /* 原版按钮尺寸与风格 */
   .btn {
     background: rgba(0, 0, 0, 0.75);
-    color: #fff;
+    color: #ffffff;
     border: none;
-    padding: 6px 20px;
+    padding: 7px 22px;
     border-radius: 20px;
     font-size: 12px;
     letter-spacing: 0.8px;
     text-transform: uppercase;
     cursor: pointer;
+    box-shadow: none;
     transition: background 0.2s, transform 0.15s;
   }
   .btn:hover {
     background: rgba(0, 0, 0, 0.95);
     transform: scale(1.04);
   }
+  .btn:active {
+    transform: scale(0.96);
+  }
 </style>
 
-<!-- 引入 Page-Flip 稳定版 -->
+<!-- Page-Flip 官方脚本 -->
 <script src="https://unpkg.com/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 </head>
 <body>
 
 <div class="stage">
   <div id="book-container">
-    <!-- 1. 左边初始展开底页：封底 (若是饮料单替换为 drink-back.webp) -->
+    <!-- 封底 -->
     <div class="page">
       <img src="book-back.webp" alt="Back Cover">
     </div>
 
-    <!-- 2. 右边初始展开页：封面 (若是饮料单替换为 drink-cover.webp) -->
+    <!-- 封面 -->
     <div class="page">
       <img src="book-cover.webp" alt="Cover">
     </div>
 
-    <!-- 3. 正文内页 (按需引入 book-page 或 drink-page) -->
+    <!-- 正文内页（按需增减或替换后缀） -->
     <div class="page"><img src="book-page1.webp"></div>
     <div class="page"><img src="book-page2.webp"></div>
     <div class="page"><img src="book-page3.webp"></div>
@@ -151,35 +161,36 @@
     var btnPrev = document.getElementById('btn-prev');
     var btnNext = document.getElementById('btn-next');
 
-    // 🌟 针对小屏幕深度适配尺寸与极值
+    // 严格匹配原图比例 706 : 1000
     var pageFlip = new St.PageFlip(bookElem, {
-      width: 420,
-      height: 590,
+      width: 353,            // 单页宽（原图 706/2）
+      height: 500,           // 单页高（原图 1000/2）
       size: "stretch",
-      minWidth: 140,         // 放低单页最小宽度门槛，手机双页展平时不会撑破屏幕
-      maxWidth: 650,
-      minHeight: 200,        // 允许自由随屏缩小
+      minWidth: 100,         // 放宽最小下限，防止手机端横向溢出
+      maxWidth: 600,
+      minHeight: 140,
       maxHeight: 900,
       drawShadow: true,
-      flippingTime: 1000,
+      flippingTime: 850,
       showCover: false,
-      usePortrait: false,    // 保持双页平铺
+      usePortrait: false,    // 保持左右双页平铺
       startPage: 0,
-      autoSize: true,        // 开启自动尺寸计算
+      autoSize: true,
       useMouseEvents: true
     });
 
     pageFlip.loadFromHTML(document.querySelectorAll('.page'));
 
-    btnNext.addEventListener('click', function() {
+    btnNext.addEventListener('click', function(e) {
+      if (e) e.stopPropagation();
       pageFlip.flipNext();
     });
 
-    btnPrev.addEventListener('click', function() {
+    btnPrev.addEventListener('click', function(e) {
+      if (e) e.stopPropagation();
       pageFlip.flipPrev();
     });
 
-    // 监听窗口缩放与手机屏幕旋转实时重新适配
     window.addEventListener('resize', function() {
       pageFlip.updateFromHtml(document.querySelectorAll('.page'));
     });
