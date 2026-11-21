@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  /* 100% 撑满 Hype 外框，四边完全对齐，无圆角 */
+  .slider-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 0;
+    background-color: #111;
+    user-select: none;
+  }
+
+  .slides-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+  }
+
+  .slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+
+  /* 底部指示器圆点 */
+  .dots {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.45);
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .dot.active {
+    background: #ffffff;
+    transform: scale(1.25);
+  }
+</style>
+</head>
+<body>
+
+<div class="slider-wrapper" id="slider">
+  <div class="slides-track" id="track">
+    <div class="slide"><img src="eventpic1.jpg" alt="图片 1"></div>
+    <div class="slide"><img src="eventpic2.jpg" alt="图片 2"></div>
+    <div class="slide"><img src="eventpic3.jpg" alt="图片 3"></div>
+    <div class="slide"><img src="eventpic4.jpg" alt="图片 4"></div>
+  </div>
+
+  <div class="dots" id="dots">
+    <button class="dot active" data-index="0" aria-label="第 1 张"></button>
+    <button class="dot" data-index="1" aria-label="第 2 张"></button>
+    <button class="dot" data-index="2" aria-label="第 3 张"></button>
+    <button class="dot" data-index="3" aria-label="第 4 张"></button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const track = document.getElementById('track');
+    const dots = document.querySelectorAll('.dot');
+    const slider = document.getElementById('slider');
+    const total = 4;
+    let currentIndex = 0;
+    let autoPlayTimer = null;
+
+    function goToSlide(index) {
+      currentIndex = (index + total) % total;
+      track.style.transform = `translateX(-${currentIndex * 100}%)`;
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    function startAutoPlay() {
+      stopAutoPlay();
+      autoPlayTimer = setInterval(() => goToSlide(currentIndex + 1), 3500);
+    }
+
+    function stopAutoPlay() {
+      if (autoPlayTimer) clearInterval(autoPlayTimer);
+    }
+
+    dots.forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        goToSlide(Number(e.target.dataset.index));
+        startAutoPlay();
+      });
+    });
+
+    slider.addEventListener('mouseenter', stopAutoPlay);
+    slider.addEventListener('mouseleave', startAutoPlay);
+
+    let startX = 0;
+    slider.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      stopAutoPlay();
+    }, { passive: true });
+
+    slider.addEventListener('touchend', (e) => {
+      const diffX = e.changedTouches[0].clientX - startX;
+      if (Math.abs(diffX) > 40) {
+        goToSlide(diffX > 0 ? currentIndex - 1 : currentIndex + 1);
+      }
+      startAutoPlay();
+    });
+
+    startAutoPlay();
+  })();
+</script>
+
+</body>
+</html>
