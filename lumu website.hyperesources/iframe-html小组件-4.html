@@ -1,59 +1,50 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
 <style>
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  html, body {
-    width: 100%;
-    height: 100%;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 100vw;
+    height: 100vh;
     background: transparent;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
-  /* 核心比例容器：严格锁定 365:425，无圆角 */
-  .slider-wrapper {
+  /* 舞台增加四周 padding，给阴影预留扩散空间 */
+  .stage {
     position: relative;
     width: 100%;
-    max-width: 365px;
-    aspect-ratio: 365 / 425;
-    overflow: hidden;
-    border-radius: 0;
-    background-color: #111;
-    user-select: none;
-  }
-
-  @supports not (aspect-ratio: 365 / 425) {
-    .slider-wrapper {
-      height: 0;
-      padding-bottom: 116.438%;
-    }
-  }
-
-  .slides-track {
+    flex: 1;
     display: flex;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+    justify-content: center;
+    align-items: center;
+    padding: 16px 24px;
+    overflow: hidden;
   }
 
-  .slide {
-    flex: 0 0 100%;
-    width: 100%;
-    height: 100%;
+  /* 柔和环境漫反射阴影 */
+  #cocktail-container {
+    box-shadow: 
+      0 12px 32px -4px rgba(0, 0, 0, 0.08), 
+      0 4px 12px -2px rgba(0, 0, 0, 0.04);
+    background: transparent;
+    border-radius: 2px;
   }
 
-  .slide img {
+  .page {
+    background-color: #fff;
+    overflow: hidden;
+  }
+
+  .page img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -61,103 +52,124 @@
     pointer-events: none;
   }
 
-  /* 底部指示器圆点 */
-  .dots {
-    position: absolute;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
+  /* 底部 Prev / Next 按钮 */
+  .controls {
+    height: 46px;
     display: flex;
-    gap: 8px;
-    z-index: 10;
+    align-items: center;
+    gap: 24px;
+    z-index: 1000;
   }
 
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.45);
+  .btn {
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
     border: none;
+    padding: 7px 22px;
+    border-radius: 20px;
+    font-size: 12px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
+    transition: background 0.2s, transform 0.15s;
   }
-
-  .dot.active {
-    background: #ffffff;
-    transform: scale(1.25);
+  .btn:hover {
+    background: rgba(0, 0, 0, 0.95);
+    transform: scale(1.04);
   }
 </style>
+
+<!-- 引入官方稳定版 Page-Flip -->
+<script src="https://unpkg.com/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 </head>
 <body>
 
-<div class="slider-wrapper" id="slider">
-  <div class="slides-track" id="track">
-    <div class="slide"><img src="barpic1.jpg" alt="图片 1"></div>
-    <div class="slide"><img src="barpic2.jpg" alt="图片 2"></div>
-    <div class="slide"><img src="barpic3.jpg" alt="图片 3"></div>
-    <div class="slide"><img src="barpic4.jpg" alt="图片 4"></div>
-  </div>
+<div class="stage">
+  <div id="cocktail-container">
+    <!-- 左边初始展开页：封底 -->
+    <div class="page">
+      <img src="cocktail-back.webp" alt="Back Cover">
+    </div>
 
-  <div class="dots" id="dots">
-    <button class="dot active" data-index="0" aria-label="第 1 张"></button>
-    <button class="dot" data-index="1" aria-label="第 2 张"></button>
-    <button class="dot" data-index="2" aria-label="第 3 张"></button>
-    <button class="dot" data-index="3" aria-label="第 4 张"></button>
+    <!-- 右边初始展开页：封面 -->
+    <div class="page">
+      <img src="cocktail-cover.webp" alt="Cover">
+    </div>
+
+    <!-- 内部正文：第 1 页到第 28 页 -->
+    <div class="page"><img src="cocktail-page1.webp"></div>
+    <div class="page"><img src="cocktail-page2.webp"></div>
+    <div class="page"><img src="cocktail-page3.webp"></div>
+    <div class="page"><img src="cocktail-page4.webp"></div>
+    <div class="page"><img src="cocktail-page5.webp"></div>
+    <div class="page"><img src="cocktail-page6.webp"></div>
+    <div class="page"><img src="cocktail-page7.webp"></div>
+    <div class="page"><img src="cocktail-page8.webp"></div>
+    <div class="page"><img src="cocktail-page9.webp"></div>
+    <div class="page"><img src="cocktail-page10.webp"></div>
+    <div class="page"><img src="cocktail-page11.webp"></div>
+    <div class="page"><img src="cocktail-page12.webp"></div>
+    <div class="page"><img src="cocktail-page13.webp"></div>
+    <div class="page"><img src="cocktail-page14.webp"></div>
+    <div class="page"><img src="cocktail-page15.webp"></div>
+    <div class="page"><img src="cocktail-page16.webp"></div>
+    <div class="page"><img src="cocktail-page17.webp"></div>
+    <div class="page"><img src="cocktail-page18.webp"></div>
+    <div class="page"><img src="cocktail-page19.webp"></div>
+    <div class="page"><img src="cocktail-page20.webp"></div>
+    <div class="page"><img src="cocktail-page21.webp"></div>
+    <div class="page"><img src="cocktail-page22.webp"></div>
+    <div class="page"><img src="cocktail-page23.webp"></div>
+    <div class="page"><img src="cocktail-page24.webp"></div>
+    <div class="page"><img src="cocktail-page25.webp"></div>
+    <div class="page"><img src="cocktail-page26.webp"></div>
+
   </div>
 </div>
 
+<div class="controls">
+  <button class="btn" id="btn-prev">Prev</button>
+  <button class="btn" id="btn-next">Next</button>
+</div>
+
 <script>
-  (function () {
-    const track = document.getElementById('track');
-    const dots = document.querySelectorAll('.dot');
-    const slider = document.getElementById('slider');
-    const total = 4;
-    let currentIndex = 0;
-    let autoPlayTimer = null;
+  window.addEventListener('load', function() {
+    var bookElem = document.getElementById('cocktail-container');
+    var btnPrev = document.getElementById('btn-prev');
+    var btnNext = document.getElementById('btn-next');
 
-    function goToSlide(index) {
-      currentIndex = (index + total) % total;
-      track.style.transform = `translateX(-${currentIndex * 100}%)`;
-      dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === currentIndex);
-      });
-    }
-
-    function startAutoPlay() {
-      stopAutoPlay();
-      autoPlayTimer = setInterval(() => goToSlide(currentIndex + 1), 3500);
-    }
-
-    function stopAutoPlay() {
-      if (autoPlayTimer) clearInterval(autoPlayTimer);
-    }
-
-    dots.forEach(dot => {
-      dot.addEventListener('click', (e) => {
-        goToSlide(Number(e.target.dataset.index));
-        startAutoPlay();
-      });
+    // 单页比例严格锁定为 874 : 1122（即 437 : 561）
+    var pageFlip = new St.PageFlip(bookElem, {
+      width: 437,
+      height: 561,
+      size: "stretch",
+      minWidth: 175,
+      maxWidth: 874,
+      minHeight: 224,
+      maxHeight: 1122,
+      drawShadow: true,
+      flippingTime: 1100,
+      showCover: false,
+      usePortrait: false,
+      startPage: 0,
+      autoSize: true,
+      useMouseEvents: true
     });
 
-    slider.addEventListener('mouseenter', stopAutoPlay);
-    slider.addEventListener('mouseleave', startAutoPlay);
+    pageFlip.loadFromHTML(document.querySelectorAll('.page'));
 
-    let startX = 0;
-    slider.addEventListener('touchstart', (e) => {
-      startX = e.touches[0].clientX;
-      stopAutoPlay();
-    }, { passive: true });
-
-    slider.addEventListener('touchend', (e) => {
-      const diffX = e.changedTouches[0].clientX - startX;
-      if (Math.abs(diffX) > 40) {
-        goToSlide(diffX > 0 ? currentIndex - 1 : currentIndex + 1);
-      }
-      startAutoPlay();
+    btnNext.addEventListener('click', function() {
+      pageFlip.flipNext();
     });
 
-    startAutoPlay();
-  })();
+    btnPrev.addEventListener('click', function() {
+      pageFlip.flipPrev();
+    });
+
+    window.addEventListener('resize', function() {
+      pageFlip.updateFromHtml(document.querySelectorAll('.page'));
+    });
+  });
 </script>
 
 </body>
